@@ -1,56 +1,18 @@
 # System Architecture
 
-This page is the source companion for the diagrams embedded in the repository README. GitHub renders the Mermaid diagrams directly, so they stay version-controlled with the documentation.
+This page provides full-size, version-controlled SVG diagrams also embedded in the repository README. SVG assets are used so the diagrams display in Markdown viewers that do not render Mermaid code blocks.
 
 ## Component architecture
 
-```mermaid
-flowchart LR
-    Dev[Developer] --> Repo[GitHub Repository]
-    Repo --> GHA[GitHub Actions]
-    Repo --> Jenkins[Jenkins Pipeline]
-    GHA --> Quality[Lint + Security + Tests]
-    Jenkins --> Quality
-    Quality --> Image[Docker Image]
-    Image --> Smoke[Container Smoke Test]
-    Smoke --> Manifests[Kubernetes YAML]
-    Manifests --> Deployment[Deployment · 2 replicas]
-    Deployment --> Service[ClusterIP Service]
-    Service --> API[Flask + Gunicorn]
-    PDB[PodDisruptionBudget] -. availability .-> Deployment
-    NetworkPolicy[NetworkPolicy] -. ingress restriction .-> API
-```
+![CI/CD system architecture](images/system-architecture.svg)
 
 ## CI workflow
 
-```mermaid
-flowchart TD
-    Start([Push / Pull Request]) --> Checkout[Checkout]
-    Checkout --> Install[Install dependencies]
-    Install --> Ruff[Ruff]
-    Ruff --> Bandit[Bandit]
-    Bandit --> Audit[pip-audit]
-    Audit --> Tests[pytest + JUnit]
-    Tests --> Build[Docker build]
-    Build --> Run[Run container]
-    Run --> Health{Readiness passes?}
-    Health -- No --> Fail[Fail and capture logs]
-    Health -- Yes --> Schema[Kubernetes schema validation]
-    Schema --> End([CI checks complete])
-```
+![CI/CD validation flow](images/cicd-flow.svg)
 
 ## Kubernetes request path
 
-```mermaid
-flowchart TB
-    Client[Allowed in-namespace client] --> Service[ClusterIP Service :80]
-    Service --> PodA[Pod A :8080]
-    Service --> PodB[Pod B :8080]
-    Policy[Ingress NetworkPolicy] -. restricts .-> PodA
-    Policy -. restricts .-> PodB
-    PDB[PodDisruptionBudget minAvailable 1] -. protects availability .-> PodA
-    PDB -. protects availability .-> PodB
-```
+![Kubernetes topology](images/kubernetes-topology.svg)
 
 ## Component responsibilities
 
