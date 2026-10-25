@@ -28,7 +28,7 @@ jobs:
       - name: Dependency vulnerability audit
         run: pip-audit -r requirements.txt
       - name: Unit tests
-        run: pytest -q --junitxml=test-results.xml
+        run: python -m pytest -q --junitxml=test-results.xml
       - name: Publish test report
         if: always()
         uses: actions/upload-artifact@v5
