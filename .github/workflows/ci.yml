@@ -59,3 +59,6 @@ jobs:
           done
           docker logs cicd-demo-ci
           exit 1
+      - name: Validate Kubernetes manifests
+        run: |
+          docker run --rm -v "$PWD:/work" -w /work ghcr.io/yannh/kubeconform:v0.6.7             -strict -summary k8s/deployment.yaml k8s/service.yaml k8s/pod-disruption-budget.yaml k8s/network-policy.yaml
