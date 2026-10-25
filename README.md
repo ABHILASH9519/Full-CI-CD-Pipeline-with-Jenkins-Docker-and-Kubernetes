@@ -38,75 +38,23 @@ This project demonstrates a production-minded workflow for validating, testing, 
 
 The diagram below shows the major components and how the application is packaged and run. The repository contains the manifests and pipeline definitions; the actual Jenkins agent and Kubernetes cluster are supplied by the operator.
 
-```mermaid
-flowchart LR
-    Dev[Developer] --> Git[GitHub Repository]
-    Git --> GHA[GitHub Actions]
-    Git --> Jen[Jenkins Pipeline]
-    GHA --> Q[Lint · Bandit · pip-audit]
-    Q --> T[pytest + JUnit]
-    T --> Build[Docker Build]
-    Build --> Smoke[Container Smoke Test]
-    Smoke --> K8s[Kubernetes Manifests]
-    K8s --> Dep[Deployment · 2 Replicas]
-    Dep --> Svc[ClusterIP Service]
-    Svc --> API[Flask API / Gunicorn]
-    PDB[PodDisruptionBudget] -. protects availability .-> Dep
-    NP[NetworkPolicy] -. restricts ingress .-> API
-    style Dev fill:#E0F2FE,stroke:#0284C7,color:#0F172A
-    style Git fill:#F1F5F9,stroke:#64748B,color:#0F172A
-    style GHA fill:#DCFCE7,stroke:#16A34A,color:#14532D
-    style Jen fill:#FEE2E2,stroke:#DC2626,color:#7F1D1D
-    style Build fill:#DBEAFE,stroke:#2563EB,color:#1E3A8A
-    style Dep fill:#EDE9FE,stroke:#7C3AED,color:#4C1D95
-    style Svc fill:#EDE9FE,stroke:#7C3AED,color:#4C1D95
-```
+![CI/CD system architecture](docs/images/system-architecture.svg)
+
+[Open the system architecture diagram](docs/images/system-architecture.svg)
 
 ## 🔄 CI/CD flow
 
-```mermaid
-flowchart TD
-    A([Commit or Pull Request]) --> B[Checkout Source]
-    B --> C[Install Pinned Dependencies]
-    C --> D[Ruff Lint]
-    D --> E[Bandit Static Analysis]
-    E --> F[pip-audit]
-    F --> G[pytest Unit Tests]
-    G --> H[Build Docker Image]
-    H --> I[Run Container]
-    I --> J{Readiness Endpoint Healthy?}
-    J -- No --> X[Fail Job + Print Logs]
-    J -- Yes --> K[Verify API Metadata]
-    K --> L[Validate Kubernetes Schemas]
-    L --> M([Checks Complete])
-    style A fill:#DBEAFE,stroke:#2563EB,color:#1E3A8A
-    style X fill:#FEE2E2,stroke:#DC2626,color:#7F1D1D
-    style M fill:#DCFCE7,stroke:#16A34A,color:#14532D
-```
+![CI/CD validation flow](docs/images/cicd-flow.svg)
+
+[Open the CI/CD flow diagram](docs/images/cicd-flow.svg)
 
 **Important:** CI validates and smoke-tests the project. It currently does **not** publish an image to a registry or deploy to a cluster.
 
 ## 🧱 Kubernetes topology
 
-```mermaid
-flowchart TB
-    subgraph NS["Application Namespace"]
-      S[ClusterIP Service :80]
-      P1[Pod 1 · Flask/Gunicorn :8080]
-      P2[Pod 2 · Flask/Gunicorn :8080]
-      S --> P1
-      S --> P2
-      NP[NetworkPolicy<br/>Ingress limited to same-namespace pods] -. applies to .-> P1
-      NP -. applies to .-> P2
-      PDB[PodDisruptionBudget<br/>minAvailable: 1] -. protects .-> P1
-      PDB -. protects .-> P2
-    end
-    Client[In-namespace Client] --> S
-    style NS fill:#F8FAFC,stroke:#94A3B8,color:#0F172A
-    style S fill:#DBEAFE,stroke:#2563EB,color:#1E3A8A
-    style P1 fill:#EDE9FE,stroke:#7C3AED,color:#4C1D95
-    style P2 fill:#EDE9FE,stroke:#7C3AED,color:#4C1D95
-```
+![Kubernetes topology](docs/images/kubernetes-topology.svg)
+
+[Open the Kubernetes topology diagram](docs/images/kubernetes-topology.svg)
 
 ## ⚡ Quick start
 
