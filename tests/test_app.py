@@ -45,3 +45,25 @@ def test_security_headers_are_also_present_on_not_found_responses():
     assert response.status_code == 404
     assert response.headers["X-Content-Type-Options"] == "nosniff"
     assert response.headers["X-Frame-Options"] == "DENY"
+
+
+def test_all_public_endpoints_return_json_and_security_headers():
+    client = app.test_client()
+    paths = ["/", "/api/v1/info", "/health", "/health/live", "/health/ready"]
+
+    for path in paths:
+        response = client.get(path)
+        assert response.status_code == 200, path
+        assert response.is_json, path
+        assert response.headers["X-Content-Type-Options"] == "nosniff", path
+        assert response.headers["X-Frame-Options"] == "DENY", path
+        assert response.headers["Referrer-Policy"] == "no-referrer", path
+        assert response.headers["Cache-Control"] == "no-store", path
+
+
+def test_head_requests_preserve_health_status_without_a_response_body():
+    response = app.test_client().head("/health/ready")
+
+    assert response.status_code == 200
+    assert response.data == b""
+    assert response.headers["X-Content-Type-Options"] == "nosniff"
