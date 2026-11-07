@@ -29,3 +29,19 @@ def test_unknown_route_returns_consistent_json_error():
     response = app.test_client().get("/does-not-exist")
     assert response.status_code == 404
     assert response.get_json()["error"]["code"] == "not_found"
+
+
+def test_security_headers_are_present_on_application_responses():
+    response = app.test_client().get("/")
+    assert response.headers["X-Content-Type-Options"] == "nosniff"
+    assert response.headers["X-Frame-Options"] == "DENY"
+    assert response.headers["Referrer-Policy"] == "no-referrer"
+    assert response.headers["Cache-Control"] == "no-store"
+    assert "frame-ancestors 'none'" in response.headers["Content-Security-Policy"]
+
+
+def test_security_headers_are_also_present_on_not_found_responses():
+    response = app.test_client().get("/missing")
+    assert response.status_code == 404
+    assert response.headers["X-Content-Type-Options"] == "nosniff"
+    assert response.headers["X-Frame-Options"] == "DENY"
