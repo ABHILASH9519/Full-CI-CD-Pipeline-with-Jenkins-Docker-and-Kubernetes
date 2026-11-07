@@ -3,8 +3,19 @@ import os
 from flask import Flask, jsonify
 
 app = Flask(__name__)
+app.config["MAX_CONTENT_LENGTH"] = 1024 * 1024
 SERVICE_NAME = "cicd-demo"
 SERVICE_VERSION = os.getenv("APP_VERSION", "0.1.0")
+
+
+@app.after_request
+def add_security_headers(response):
+    response.headers.setdefault("X-Content-Type-Options", "nosniff")
+    response.headers.setdefault("X-Frame-Options", "DENY")
+    response.headers.setdefault("Referrer-Policy", "no-referrer")
+    response.headers.setdefault("Cache-Control", "no-store")
+    response.headers.setdefault("Content-Security-Policy", "default-src 'none'; frame-ancestors 'none'")
+    return response
 
 
 @app.get("/")
