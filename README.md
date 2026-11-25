@@ -184,3 +184,23 @@ Before production use, add image scanning and signing, SBOM attestation, immutab
 **Built as a hands-on DevOps portfolio project** · CI validation is not a claim of production deployment.
 
 </div>
+
+
+## Technical walkthrough
+
+```mermaid
+sequenceDiagram
+    participant P0 as Git
+    participant P1 as Jenkins
+    participant P2 as Docker
+    participant P3 as Kubernetes manifests
+    P0->>P1: Jenkins
+    P1->>P2: Docker
+    P2->>P3: Kubernetes manifests
+```
+
+**Engineering review focus:** Build and test automation; publication and deployment are operator-led.
+
+This diagram is illustrative, not a recorded execution trace. Refer to the existing run instructions for verification.
+
+![Last commit](https://img.shields.io/github/last-commit/ABHILASH9519/Full-CI-CD-Pipeline-with-Jenkins-Docker-and-Kubernetes) ![Open issues](https://img.shields.io/github/issues/ABHILASH9519/Full-CI-CD-Pipeline-with-Jenkins-Docker-and-Kubernetes)
